@@ -1,0 +1,14 @@
+main {  background-image: url(/assets/reg-bg.jpg);display:flex;  background-position: center; background-size: cover; justify-content:center; align-items:center; height:100vh; font-family:Arial; }
+.container { background:#f4f4f4; padding:0 30px; border-radius:8px; width:450px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+h2 { text-align:center; margin-bottom:20px; }
+input, select, button { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; }
+button { background:#007bff; color:#fff; border:none; cursor:pointer; }
+button:hover { background:#0056b3; }
+#login-reg { text-align: center; margin: 10px;}
+.card {
+    display: flex;
+    flex-direction: row;
+}
+input, select, button {
+    box-sizing: border-box;
+}

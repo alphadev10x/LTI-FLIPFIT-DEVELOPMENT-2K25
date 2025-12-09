@@ -1,0 +1,1 @@
+export type SubKey = 'pending' | 'approved' | 'rejected';

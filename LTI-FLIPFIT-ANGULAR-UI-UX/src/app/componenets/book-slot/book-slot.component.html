@@ -1,0 +1,374 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Center Slot Booking</title>
+  <style>
+    :root{
+      --bg:#f6f8fc; --card:#fff; --text:#0f172a; --muted:#6b7280;
+      --border:#e5e7eb; --primary:#2563eb; --warn:#ef4444;
+      --radius:12px; --shadow:0 1px 2px rgba(16,24,40,.08);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text)}
+    .shell{max-width:1000px;margin:24px auto;padding:0 16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px}
+    h1{margin:0 0 16px;font-size:26px}
+    h2{margin:24px 0 12px;font-size:20px}
+    label{display:block;font-weight:600;margin-bottom:6px}
+    input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:8px;font:inherit;background:#fff}
+    .grid{display:grid;gap:12px}
+    .grid.cols-2{grid-template-columns:1fr 1fr}
+    .grid.cols-3{grid-template-columns:repeat(3,1fr)}
+    .grid .full{grid-column:1/-1}
+    .btn{border:0;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer;box-shadow:var(--shadow)}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.ghost{background:#fff;border:1px solid var(--border)}
+    .btn.warn{background:var(--warn);color:#fff}
+    .bar{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
+    .hint{font-size:12px;color:var(--muted)}
+    .error{color:#b91c1c;font-size:12px;margin-top:4px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;border-bottom:1px solid var(--border);text-align:left}
+    thead{background:#f3f4f6}
+    .ta-right{text-align:right}
+    .empty{padding:16px;color:var(--muted);text-align:center}
+    @media (max-width:760px){
+      .grid.cols-2,.grid.cols-3{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="card">
+      <h1>Book a Slot</h1>
+
+      <!-- Step 1: Select Center + Date -->
+      <h2>Choose Center & Date</h2>
+      <div class="grid cols-3">
+        <div>
+          <label for="centerSelect">Center *</label>
+          <select id="centerSelect" required>
+            <option value="">Select a center</option>
+            <!-- Populated by JS -->
+          </select>
+          <div class="error" data-error-for="centerSelect"></div>
+        </div>
+        <div>
+          <label for="dateSelect">Date *</label>
+          <input id="dateSelect" type="date" required />
+          <div class="error" data-error-for="dateSelect"></div>
+        </div>
+        <div>
+          <label for="slotSelect">Available Slots *</label>
+          <select id="slotSelect" required disabled>
+            <option value="">Select a slot</option>
+            <!-- Populated by JS -->
+          </select>
+          <div class="hint">Slots update after choosing center & date.</div>
+          <div class="error" data-error-for="slotSelect"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: User Details -->
+      <h2>Your Details</h2>
+      <div class="grid cols-2">
+        <div>
+          <label for="userName">Full Name *</label>
+          <input id="userName" type="text" required placeholder="e.g., Manan Gugnani" />
+          <div class="error" data-error-for="userName"></div>
+        </div>
+        <div>
+          <label for="userEmail">Email *</label>
+          <input id="userEmail" type="email" required placeholder="e.g., manan@example.com" />
+          <div class="error" data-error-for="userEmail"></div>
+        </div>
+      </div>
+
+      <div class="bar">
+        <button class="btn ghost" id="resetBtn">Reset</button>
+        <button class="btn primary" id="bookBtn">Book Slot</button>
+      </div>
+    </div>
+
+    <!-- Bookings -->
+    <div class="card" style="margin-top:16px">
+      <h2>Your Bookings</h2>
+      <table aria-label="Bookings table">
+        <thead>
+          <tr>
+            <th>Center</th>
+            <th>Date</th>
+            <th>Slot</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th class="ta-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="bookingBody">
+          <tr class="empty"><td colspan="6">No bookings yet.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    /* Mock Centers + slots configuration
+       Each center has:
+       - open/close times (HH:MM)
+       - slotLength minutes
+       - capacity per slot
+       - closedDays: array of weekday numbers (0=Sun ... 6=Sat)
+    */
+    const centers = [
+      {
+        id: 'sunrise',
+        name: 'Sunrise Fitness Center',
+        open: '06:00',
+        close: '22:00',
+        slotLength: 60,        // minutes
+        capacity: 20,
+        closedDays: [],        // open all days
+      },
+      {
+        id: 'ironhub',
+        name: 'Iron Hub Gym',
+        open: '07:00',
+        close: '21:00',
+        slotLength: 90,
+        capacity: 15,
+        closedDays: [0],       // closed on Sundays
+      },
+      {
+        id: 'bluefit',
+        name: 'BlueFit Center',
+        open: '05:30',
+        close: '23:00',
+        slotLength: 60,
+        capacity: 25,
+        closedDays: [2],       // closed on Tuesdays
+      },
+    ];
+
+    // Simple in-memory bookings list
+    const bookings = []; // {centerId, centerName, date, slot, userName, userEmail}
+
+    /* ------- Elements ------- */
+    const centerSelect = document.getElementById('centerSelect');
+    const dateSelect   = document.getElementById('dateSelect');
+    const slotSelect   = document.getElementById('slotSelect');
+    const userName     = document.getElementById('userName');
+    const userEmail    = document.getElementById('userEmail');
+    const bookBtn      = document.getElementById('bookBtn');
+    const resetBtn     = document.getElementById('resetBtn');
+    const bookingBody  = document.getElementById('bookingBody');
+
+    /* ------- Init ------- */
+    // Populate centers
+    centers.forEach(c => {
+      const opt = document.createElement('option');
+      opt.value = c.id;
+      opt.textContent = c.name;
+      centerSelect.appendChild(opt);
+    });
+
+    // Set default date = today
+    const today = new Date();
+    dateSelect.value = toYMD(today);
+    // Min date today
+    dateSelect.min = toYMD(today);
+
+    // Event listeners
+    centerSelect.addEventListener('change', refreshSlots);
+    dateSelect.addEventListener('change', refreshSlots);
+    bookBtn.addEventListener('click', bookSlot);
+    resetBtn.addEventListener('click', resetForm);
+
+    function resetForm() {
+      centerSelect.value = '';
+      slotSelect.innerHTML = '<option value="">Select a slot</option>';
+      slotSelect.disabled = true;
+      userName.value = '';
+      userEmail.value = '';
+      clearErrors();
+    }
+
+    /* ------- Slot generation ------- */
+    function refreshSlots(){
+      clearErrors();
+      slotSelect.innerHTML = '<option value="">Select a slot</option>';
+      const centerId = centerSelect.value;
+      const date = dateSelect.value;
+      if (!centerId || !date) {
+        slotSelect.disabled = true;
+        return;
+      }
+
+      const center = centers.find(c => c.id === centerId);
+      const dt = new Date(date + 'T00:00:00');
+      const weekday = dt.getDay(); // 0-6
+
+      // closed?
+      if (center.closedDays.includes(weekday)) {
+        slotSelect.disabled = true;
+        slotSelect.innerHTML = '<option value="">Center closed on selected day</option>';
+        return;
+      }
+
+      // Build slot times from open to close
+      const openMins = toMinutes(center.open);
+      const closeMins = toMinutes(center.close);
+      const length = center.slotLength;
+
+      const now = new Date();
+      const isToday = toYMD(now) === date;
+
+      for (let t = openMins; t + length <= closeMins; t += length) {
+        const start = minutesToHHMM(t);
+        const end   = minutesToHHMM(t + length);
+        const value = `${start} - ${end}`;
+
+        // If selected date is today, disable past slots
+        let disabled = false;
+        if (isToday) {
+          const currentMins = now.getHours() * 60 + now.getMinutes();
+          disabled = t <= currentMins;
+        }
+
+        const opt = document.createElement('option');
+        opt.value = value;
+        opt.textContent = `${value} (Cap: ${center.capacity})`;
+        opt.disabled = disabled;
+
+        // If slot already fully booked (simple check)
+        const taken = bookings.filter(b =>
+          b.centerId === centerId && b.date === date && b.slot === value
+        ).length;
+        if (taken >= center.capacity) {
+          opt.textContent = `${value} — Full`;
+          opt.disabled = true;
+        }
+
+        slotSelect.appendChild(opt);
+      }
+      slotSelect.disabled = false;
+    }
+
+    /* ------- Booking ------- */
+    function bookSlot(){
+      clearErrors();
+      const centerId = centerSelect.value;
+      const date = dateSelect.value;
+      const slot = slotSelect.value;
+      const name = userName.value.trim();
+      const email = userEmail.value.trim();
+
+      // Validation
+      let valid = true;
+      if (!centerId){ showError('centerSelect','Please select a center.'); valid=false; }
+      if (!date){ showError('dateSelect','Please choose a date.'); valid=false; }
+      if (!slot){ showError('slotSelect','Please choose an available slot.'); valid=false; }
+      if (!name){ showError('userName','Please enter your full name.'); valid=false; }
+      if (!email || !/^\S+@\S+\.\S+$/.test(email)){ showError('userEmail','Please enter a valid email.'); valid=false; }
+      if (!valid) return;
+
+      const center = centers.find(c => c.id === centerId);
+
+      // Check capacity
+      const taken = bookings.filter(b =>
+        b.centerId === centerId && b.date === date && b.slot === slot
+      ).length;
+      if (taken >= center.capacity) {
+        showError('slotSelect','This slot is full. Please select another.');
+        return;
+      }
+
+      // Save booking
+      bookings.push({
+        centerId,
+        centerName: center.name,
+        date,
+        slot,
+        userName: name,
+        userEmail: email
+      });
+
+      // Feedback + refresh
+      alert('Booking confirmed!');
+      renderBookings();
+      refreshSlots(); // update capacity/full state
+    }
+
+    function renderBookings(){
+      bookingBody.innerHTML = '';
+      if (bookings.length === 0){
+        const tr = document.createElement('tr');
+        tr.className = 'empty';
+        tr.innerHTML = '<td colspan="6">No bookings yet.</td>';
+        bookingBody.appendChild(tr);
+        return;
+      }
+
+      bookings.forEach((b, idx) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${escapeHtml(b.centerName)}</td>
+          <td>${escapeHtml(b.date)}</td>
+          <td>${escapeHtml(b.slot)}</td>
+          <td>${escapeHtml(b.userName)}</td>
+          <td>${escapeHtml(b.userEmail)}</td>
+          <td class="ta-right">
+            <button class="btn warn" onclick="cancelBooking(${idx})">Cancel</button>
+          </td>
+        `;
+        bookingBody.appendChild(tr);
+      });
+    }
+
+    function cancelBooking(index){
+      const remove = bookings[index];
+      bookings.splice(index,1);
+      renderBookings();
+      // If the canceled booking matches current selection, refresh slot availability
+      const cid = centerSelect.value, d = dateSelect.value;
+      if (remove && remove.centerId === cid && remove.date === d) {
+        refreshSlots();
+      }
+    }
+
+    /* ------- Helpers ------- */
+    function toYMD(d){
+      const y = d.getFullYear();
+      const m = String(d.getMonth()+1).padStart(2,'0');
+      const day = String(d.getDate()).padStart(2,'0');
+      return `${y}-${m}-${day}`;
+    }
+    function toMinutes(hhmm){
+      const [h,m] = hhmm.split(':').map(Number);
+      return h*60 + m;
+    }
+    function minutesToHHMM(mins){
+      const h = Math.floor(mins/60);
+      const m = mins%60;
+      return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0');
+    }
+    function showError(id,msg){
+      const el = document.querySelector(`[data-error-for="${id}"]`);
+      if (el) el.textContent = msg;
+    }
+    function clearErrors(){
+      document.querySelectorAll('.error').forEach(e => e.textContent = '');
+    }
+    function escapeHtml(text) {
+      const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    // Initial render
+    renderBookings();
+    refreshSlots();
+  </script>
+</body>
+</html>

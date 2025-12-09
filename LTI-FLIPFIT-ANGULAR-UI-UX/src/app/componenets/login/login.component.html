@@ -1,0 +1,19 @@
+<!-- login.component.html -->
+<main>
+    <div class="login-container">
+        <h2>Login to FlipFit</h2>
+        <form (ngSubmit)="onLogin()" #loginForm="ngForm">
+            <input type="email" name="email" [(ngModel)]="credentials.email" placeholder="Email" required />
+            <input type="password" name="password" [(ngModel)]="credentials.password" placeholder="Password" required />
+
+            <div *ngIf="loginError" class="error-message">
+                Invalid email or password. Please try again.
+            </div>
+
+            <button type="submit" [disabled]="!loginForm.valid">Login</button>
+            <div class="links">
+                Need an Account? <a routerLink="/register">Register</a>
+            </div>
+        </form>
+    </div>
+</main>

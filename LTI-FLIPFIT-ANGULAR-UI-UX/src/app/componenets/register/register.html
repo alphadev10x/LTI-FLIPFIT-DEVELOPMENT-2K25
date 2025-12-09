@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account</title>
+<style>
+body {  background-image: url(/assets/reg-bg.jpg);display:flex;  background-position: center; background-size: cover; justify-content:center; align-items:center; height:100vh; font-family:Arial; }
+.container { background:#f4f4f4; padding:30px; border-radius:8px; width:350px; box-shadow:0 0 10px rgba(0,0,0,0.1); }
+h2 { text-align:center; margin-bottom:20px; }
+input, select, button { width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:4px; }
+button { background:#007bff; color:#fff; border:none; cursor:pointer; }
+button:hover { background:#0056b3; }
+#login-reg { text-align: center; margin: 10px;}
+</style>
+</head>
+<body>
+<div class="container">
+    <h2>Create your FlipFit Account</h2>
+    <form>
+        <input type="text" placeholder="Full Name" required>
+        <input type="email" placeholder="Email" required>
+        <input type="password" placeholder="Password" required>
+        <select>
+            <option>Select Role</option>
+            <option>Admin</option>
+            <option>Owner</option>
+            <option>Customer</option>
+        </select>
+        <button type="submit">Register</button>
+        <div id="login-reg">
+            Already have an Account? <a href="/login">Login</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

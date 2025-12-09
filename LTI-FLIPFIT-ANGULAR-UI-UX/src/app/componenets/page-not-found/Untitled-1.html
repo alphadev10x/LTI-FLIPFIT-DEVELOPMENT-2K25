@@ -1,0 +1,413 @@
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Sidebar Menu</title>
+  <style>
+    /* ---------- Design Tokens ---------- */
+    :root {
+      --sidebar-width: 280px;
+      --bg: #0f172a;          /* slate-900 */
+      --bg-elev: #111827;     /* slate-800 */
+      --text: #e5e7eb;        /* gray-200 */
+      --muted: #94a3b8;       /* slate-400 */
+      --brand: #3b82f6;       /* blue-500 */
+      --brand-weak: #93c5fd;  /* blue-300 */
+      --accent: #22c55e;      /* green-500 */
+      --border: #1f2937;      /* slate-700 */
+      --focus: #f59e0b;       /* amber-500 */
+      --shadow: 0 8px 20px rgba(0,0,0,0.35);
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #ffffff;
+        --bg-elev: #f8fafc;
+        --text: #111827;
+        --muted: #64748b;
+        --brand: #2563eb;
+        --brand-weak: #93c5fd;
+        --accent: #16a34a;
+        --border: #e5e7eb;
+        --focus: #ea580c;
+      }
+    }
+
+    /* ---------- Base Reset ---------- */
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+    button {
+      font: inherit;
+      color: inherit;
+      background: none;
+      border: none;
+      padding: 0;
+      cursor: pointer;
+    }
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 2px;
+      border-radius: 6px;
+    }
+
+    /* ---------- App Header (mobile) ---------- */
+    .app-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--bg-elev);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+    }
+    .app-title {
+      font-weight: 600;
+    }
+    .sidebar-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    /* ---------- Layout ---------- */
+    .layout {
+      display: grid;
+      grid-template-columns: var(--sidebar-width) 1fr;
+      min-height: calc(100vh - 52px); /* header height approx */
+    }
+    .sidebar {
+      position: relative;
+      z-index: 40;
+      background: var(--bg-elev);
+      border-right: 1px solid var(--border);
+      padding: 14px;
+      overflow-y: auto;
+    }
+    .content {
+      padding: 18px;
+    }
+
+    /* ---------- Nav Menu ---------- */
+    nav.menu {
+      display: grid;
+      gap: 12px;
+    }
+    .menu-section {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 6px;
+      box-shadow: var(--shadow);
+    }
+    .menu-button {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: var(--text);
+      transition: background 160ms ease;
+    }
+    .menu-button:hover {
+      background: rgba(59,130,246,0.12); /* brand tint */
+    }
+    /* Rotate chevron based on expanded state if using ▸/▾ glyphs */
+    .menu-button[aria-expanded="true"] span[aria-hidden="true"] {
+      transform: rotate(180deg);
+      transition: transform 160ms ease;
+      display: inline-block;
+    }
+
+    .submenu {
+      display: none;
+      margin-top: 6px;
+      padding: 6px;
+      border-top: 1px dashed var(--border);
+    }
+    .submenu.show {
+      display: grid;
+      gap: 6px;
+    }
+    .submenu button {
+      text-align: left;
+      padding: 8px 10px;
+      border-radius: 8px;
+      color: var(--muted);
+      transition: background 160ms ease, color 160ms ease;
+    }
+    .submenu button:hover {
+      background: rgba(148,163,184,0.15); /* muted tint */
+      color: var(--text);
+    }
+    .submenu button.active,
+    .submenu button[aria-current="page"] {
+      background: rgba(34,197,94,0.18); /* accent tint */
+      color: var(--text);
+      border: 1px solid rgba(34,197,94,0.35);
+    }
+
+    /* ---------- Scrim (mobile overlay) ---------- */
+    .scrim {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(2px);
+      z-index: 30;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 200ms ease;
+    }
+    .scrim.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    /* ---------- Responsive: off-canvas sidebar on small screens ---------- */
+    @media (max-width: 768px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: fixed;
+        top: 52px; /* app-header height */
+        left: 0;
+        height: calc(100vh - 52px);
+        width: var(--sidebar-width);
+        transform: translateX(-100%);
+        transition: transform 220ms ease;
+        box-shadow: var(--shadow);
+      }
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      .content {
+        padding: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header (visible especially on mobile) -->
+  <header class="app-header">
+    <button class="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="sidebar">
+      ☰ Menu
+    </button>
+    <div class="app-title">Dashboard</div>
+  </header>
+
+  <!-- Overlay scrim for mobile when sidebar is open -->
+  <div class="scrim" hidden></div>
+
+  <div class="layout">
+    <!-- Sidebar / Nav -->
+    <aside id="sidebar" class="sidebar" aria-label="Primary sidebar">
+      <nav class="menu">
+        <!-- Centers section -->
+        <div class="menu-section">
+          <button class="menu-button" aria-expanded="true" aria-controls="submenu-centers">
+            <span>Centers</span>
+            <span aria-hidden="true">▾</span>
+          </button>
+          <div id="submenu-centers" class="submenu show" role="group" aria-label="Centers subitems">
+            <button data-section="centers" data-sub="pending" class="active" aria-current="page">Pending</button>
+            <button data-section="centers" data-sub="approved">Approved</button>
+            <button data-section="centers" data-sub="rejected">Rejected</button>
+          </div>
+        </div>
+
+        <!-- Owners section -->
+        <div class="menu-section">
+          <button class="menu-button" aria-expanded="false" aria-controls="submenu-owners">
+            <span>Owners</span>
+            <span aria-hidden="true">▸</span>
+          </button>
+          <div id="submenu-owners" class="submenu" role="group" aria-label="Owners subitems">
+            <button data-section="owners" data-sub="pending">Pending</button>
+            <button data-section="owners" data-sub="approved">Approved</button>
+            <button data-section="owners" data-sub="rejected">Rejected</button>
+          </div>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main content area -->
+    <main id="main" class="content" tabindex="-1" aria-label="Main content">
+      <h1>Welcome</h1>
+      <p>Select a menu item to update the content area. This is a placeholder.</p>
+      <div id="status"></div>
+    </main>
+  </div>
+
+  <script>
+    // ---------- Helpers ----------
+    const $ = (sel, ctx = document) => ctx.querySelector(sel);
+    const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
+
+    // ---------- Sidebar open/close ----------
+    const sidebar = $('#sidebar');
+    const toggleBtn = $('.sidebar-toggle');
+    const scrim = $('.scrim');
+
+    function openSidebar() {
+      sidebar.classList.add('open');
+      toggleBtn.setAttribute('aria-expanded', 'true');
+      scrim.hidden = false;
+      scrim.classList.add('visible');
+    }
+    function closeSidebar() {
+      sidebar.classList.remove('open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      scrim.classList.remove('visible');
+      setTimeout(() => { scrim.hidden = true; }, 200);
+    }
+    toggleBtn.addEventListener('click', () => {
+      const expanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      expanded ? closeSidebar() : openSidebar();
+    });
+    scrim.addEventListener('click', closeSidebar);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeSidebar();
+    });
+    // Auto close drawer when resizing up to desktop
+    const mq = window.matchMedia('(min-width: 769px)');
+    mq.addEventListener('change', (ev) => { if (ev.matches) closeSidebar(); });
+
+    // ---------- Submenu toggle ----------
+    $$('.menu-button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('aria-controls');
+        const submenu = document.getElementById(id);
+        const expanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!expanded));
+        submenu.classList.toggle('show', !expanded);
+        // Optional: update chevron glyph for ▸/▾ automatically
+        const glyph = btn.querySelector('span[aria-hidden="true"]');
+        if (glyph) glyph.textContent = !expanded ? '▾' : '▸';
+      });
+
+      // Keyboard: Space/Enter toggles; ArrowRight expands; ArrowLeft collapses
+      btn.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          btn.click();
+        } else if (e.key === 'ArrowRight') {
+          if (btn.getAttribute('aria-expanded') !== 'true') btn.click();
+          const id = btn.getAttribute('aria-controls');
+          const submenu = document.getElementById(id);
+          const firstItem = submenu?.querySelector('button');
+          firstItem?.focus();
+        } else if (e.key === 'ArrowLeft') {
+          if (btn.getAttribute('aria-expanded') === 'true') btn.click();
+        }
+      });
+    });
+
+    // ---------- Active state + event dispatch ----------
+    const menu = $('nav.menu');
+    function setActive(targetBtn) {
+      // Clear previous
+      $$('.submenu button.active, .submenu button[aria-current="page"]').forEach(b => {
+        b.classList.remove('active');
+        b.removeAttribute('aria-current');
+        b.tabIndex = -1;
+      });
+      // Set new
+      targetBtn.classList.add('active');
+      targetBtn.setAttribute('aria-current', 'page');
+      targetBtn.tabIndex = 0;
+
+      // Persist selection
+      const key = 'menu.active';
+      const val = `${targetBtn.dataset.section}:${targetBtn.dataset.sub}`;
+      try { localStorage.setItem(key, val); } catch {}
+    }
+
+    menu.addEventListener('click', (e) => {
+      const btn = e.target.closest('.submenu button');
+      if (!btn) return;
+      setActive(btn);
+
+      // Dispatch custom event for routing/content updates
+      const detail = { section: btn.dataset.section, sub: btn.dataset.sub };
+      menu.dispatchEvent(new CustomEvent('menu:select', { detail, bubbles: true }));
+
+      // Example: update content area
+      const status = $('#status');
+      status.textContent = `Selected: ${detail.section} → ${detail.sub}`;
+      // Close drawer on mobile after selection
+      if (window.innerWidth < 769) closeSidebar();
+    });
+
+    // ---------- Keyboard navigation in submenus ----------
+    menu.addEventListener('keydown', (e) => {
+      const btn = e.target.closest('.submenu button');
+      if (!btn) return;
+      const siblings = $$('.submenu button', btn.closest('.submenu'));
+      const idx = siblings.indexOf(btn);
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        const next = siblings[idx + 1] || siblings[0];
+        next.focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        const prev = siblings[idx - 1] || siblings[siblings.length - 1];
+        prev.focus();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        siblings[0].focus();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        siblings[siblings.length - 1].focus();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+
+    // ---------- Restore persisted selection ----------
+    (function restoreActive() {
+      const key = 'menu.active';
+      try {
+        const stored = localStorage.getItem(key);
+        if (stored) {
+          const [section, sub] = stored.split(':');
+          const btn = document.querySelector(`.submenu button[data-section="${section}"][data-sub="${sub}"]`);
+          if (btn) setActive(btn);
+        } else {
+          // Ensure a default focusable active item exists
+          const defaultActive = document.querySelector('.submenu button.active');
+          if (defaultActive) defaultActive.tabIndex = 0;
+        }
+      } catch {
+        // Ignore storage errors (private mode, etc.)
+      }
+    })();
+
+    // ---------- Example: listen for menu selections elsewhere ----------
+    document.addEventListener('menu:select', (e) => {
+      const { section, sub } = e.detail;
+      // Hook: you can call your router / fetch data here.
+      // console.log('Selected', section, sub);
+    });
+  </script>
+</body>
+</html>

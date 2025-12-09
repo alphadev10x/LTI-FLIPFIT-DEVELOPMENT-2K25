@@ -1,0 +1,39 @@
+<main>
+    <div class="container">
+    <h2>Create your FlipFit Account</h2>
+    <form (ngSubmit)="onRegister()" #registerForm="ngForm">
+        <div class="card">
+            <input type="text" name="firstName" [(ngModel)]="register.firstName" placeholder="First Name" required>
+            <input type="text" name="lastName" [(ngModel)]="register.lastName" placeholder="Last Name" required>
+        </div>
+        <div class="card">
+            <input type="email" name="email" [(ngModel)]="register.email" placeholder="Email" required>
+            <input type="password" name="password" [(ngModel)]="register.password" placeholder="Password" required>
+        </div>
+        <select name="role" [(ngModel)]="register.role">
+            <option>Select Role</option>
+            <option>Admin</option>
+            <option>Owner</option>
+            <option>Customer</option>
+        </select>
+        @if(register.role === "Customer") {
+            <input type="text" name="phoneNumber" [(ngModel)]="register.phoneNumber" placeholder="Phone Number" required> 
+            <select name="gender" [(ngModel)]="register.gender">
+            <option>Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+        </select>
+        } @else if (register.role === "Owner") {
+            <input type="text" name="businessName" [(ngModel)]="owner.businessName" placeholder="Bussiness Name" required>
+            <input type="text" name="gstin" [(ngModel)]="owner.gstin" placeholder="GST Number" required>
+            <input type="text" name="pancard" [(ngModel)]="owner.pancard" placeholder="PAN Number" required>
+        } @else if(register.role === "Admin") {
+            <input type="text" name="phoneNumber" [(ngModel)]="register.phoneNumber" placeholder="Phone Number" required>
+        }
+        <button type="submit" [disabled]="!registerForm.valid">Register</button>
+        <div id="login-reg">
+            Already have an Account? <a href="/login">Login</a>
+        </div>
+    </form>
+</div>
+</main>

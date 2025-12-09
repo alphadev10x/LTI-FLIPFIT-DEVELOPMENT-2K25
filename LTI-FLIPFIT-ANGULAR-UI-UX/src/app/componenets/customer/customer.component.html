@@ -1,0 +1,94 @@
+<header class="navbar">
+    <div class="brand">Customer Dashboard</div>
+    <nav class="nav-links">
+        <button class="sidebar-btns" (click)="setView('bookings')" [class.active]="activeView === 'bookings'">
+            <i class="fa-solid fa-calendar-check"></i> Bookings
+        </button>
+
+        <button class="sidebar-btns" (click)="setView('slot-booking')" [class.active]="activeView === 'slot-booking'">
+            <i class="fa-solid fa-clock"></i> Slot Booking
+        </button>
+        <button class="sidebar-btns" (click)="onLogout()" routerLink="/login">Logout</button>
+    </nav>
+</header>
+<div class="container">
+    <div class="main-content">
+        @if (activeView === 'bookings') {
+        <div class="card" style="margin-top:16px">
+            <h2>Your Bookings</h2>
+            <table aria-label="Bookings table">
+                <thead>
+                    <tr>
+                        <th>Center ID</th>
+                        <th>Slot Name</th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th>Booking Date</th>                                               
+                         <th>Booking Status</th>
+                    </tr>
+                </thead>
+                <tbody id="bookingBody">
+                    <tr *ngFor="let booking of bookings">
+                        <td>{{ booking.centerId }}</td>
+                        <td>{{ booking.slotName }}</td>
+                        <td>{{ booking.firstName }}</td>
+                        <td>{{ booking.lastName }}</td>
+                        <td>{{ booking.bookDate }}</td>
+                         @if (booking.bookingStatus) {
+                            <td>Approved</td>
+                        } @else {
+                            <td>Pending</td>
+                        }
+                    </tr>
+
+                    <!-- Show "No bookings yet" only if the bookings array is empty -->
+                    <tr class="empty" *ngIf="bookings.length === 0">
+                        <td colspan="6">No bookings yet.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        } @else if (activeView === 'slot-booking') {
+        <!-- Place your Slot Booking component or HTML here -->
+        <div class="card">
+            <h1>Book a Slot</h1>
+
+            <!-- Step 1: Select Center + Date -->
+            <h2>Choose Center & Date</h2>
+            <form [formGroup]="slotForm" (ngSubmit)="onSubmit()">
+                <div class="grid cols-3">
+                    <div>
+                        <label for="centerId">Center *</label>
+                        <select formControlName="centerId">
+                            <option value="">Select a center</option>
+                            <option *ngFor="let center of centers" [value]="center.centerId">
+                               {{ center.centerId }} - {{ center.centerName }}
+                            </option>
+                        </select>
+                        <div class="error" data-error-for="centerSelect"></div>
+                    </div>
+
+                    <div>
+                        <label for="slotDate">Date *</label>
+                        <input type="date" formControlName="slotDate" />
+                        <div class="error" data-error-for="dateSelect"></div>
+                    </div>
+
+                    <div>
+                        <label for="slotId">Available Slots *</label>
+                        <select formControlName="slotId">
+                            <option value="">Select a slot</option>
+                            <option *ngFor="let slot of availableSlots" [value]="slot.slotId">
+                                 {{ slot.slotId }} -   {{ slot.slotName }}
+                            </option>
+                        </select>
+                        <div class="hint">Slots update after choosing center & date.</div>
+                        <div class="error" data-error-for="slotSelect"></div>
+                    </div>
+                </div>
+                <button class="btn primary" type="submit" [disabled]="!slotForm.valid">Book Slot</button>
+            </form>
+        </div>
+        }
+    </div>
+</div>

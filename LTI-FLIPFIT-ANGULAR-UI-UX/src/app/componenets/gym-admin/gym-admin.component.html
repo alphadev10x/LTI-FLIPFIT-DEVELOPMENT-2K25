@@ -1,0 +1,157 @@
+<header class="navbar">
+  <div class="brand">Admin Dashboard</div>
+  <nav class="nav-links">
+    <button class="sidebar-btns" (click)="setView('home')" [class.active]="activeView === 'home'">
+      <i class="fa-solid fa-clock"></i> Home
+    </button>
+
+    <button class="sidebar-btns" (click)="setView('pending-owners')" [class.active]="activeView === 'pending-owners'">
+      <i class="fa-solid fa-calendar-check"></i> PendingOwners
+    </button>
+
+    <button class="sidebar-btns" (click)="setView('pending-centers')" [class.active]="activeView === 'pending-centers'">
+      <i class="fa-solid fa-bell"></i> PendingCenters
+    </button>
+
+    <button class="sidebar-btns" routerLink="/login">
+      <i class="fa-solid fa-clock"></i> Logout
+    </button>
+  </nav>
+</header>
+
+<div class="container">
+  <div class="main-content">
+    @if (activeView === 'home') {
+    <div class="card" style="margin-top:16px">
+      <h2>List of Owners</h2>
+      <table id="owner-table" aria-label="Owners table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Business Name</th>
+            <th>Contact Person</th>
+            <th>GST Number</th>
+            <th>PAN Number</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let owner of owners">
+            <td>{{ owner.userId }}</td>
+            <td>{{ owner.businessName }}</td>
+            <td>{{ owner.firstName }} {{ owner.lastName }}</td>
+            <td>{{ owner.gstin }}</td>
+            <td>{{ owner.pancard }}</td>
+            @if(owner.approved) {
+              <td>Approved</td>
+            } @else {
+              <td>Pending</td>
+            }
+          </tr>
+          <tr class="empty" *ngIf="owners.length === 0">
+            <td colspan="6">No centers yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <h2>List of Centers</h2>
+      <table id="center-table" aria-label="Centers table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Center Name</th>
+            <th>Contact Person</th>
+            <th>Email Address</th>
+            <th>Phone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let center of centers">
+            <td>{{ center.centerId }}</td>
+            <td>{{ center.centerName }}</td>
+            <td>{{ center.contactPerson }}</td>
+            <td>{{ center.email }}</td>
+            <td>{{ center.phone }}</td>
+            @if(center.isApproved) {
+              <td>Approved</td>
+            } @else {
+              <td>Pending</td>
+            }
+          </tr>
+          <tr class="empty" *ngIf="centers.length === 0">
+            <td colspan="6">No centers yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    } @else if (activeView === 'pending-owners') {
+    <h1>Pending Owners</h1>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Owner Details</h2>
+      <table id="owner-table" aria-label="Owners table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Business Name</th>
+            <th>Contact Person</th>
+            <th>GST Number</th>
+            <th>PAN Number</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let owner of pendingOwners">
+            <td>{{ owner.userId }}</td>
+            <td>{{ owner.businessName }}</td>
+            <td>{{ owner.firstName }} {{ owner.lastName }}</td>
+            <td>{{ owner.GSTIN }}</td>
+            <td>{{ owner.PANCard }}</td>
+            @if(!owner.isApproved) {
+              <td><button class="btn primary" (click)="approveGymOwner(owner.userId)">Approve</button></td>
+            }
+          </tr>
+          <tr class="empty" *ngIf="pendingOwners.length === 0">
+            <td colspan="6">No centers yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    } @else if (activeView === 'pending-centers') {
+      <h1>Pending Centers</h1>
+      
+    <div class="card" style="margin-top:16px">
+      <h2>Center Details</h2>
+      <table id="center-table" aria-label="Centers table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Center Name</th>
+            <th>Contact Person</th>
+            <th>Email Address</th>
+            <th>Phone</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let center of pendingCenters">
+            <td>{{ center.centerId }}</td>
+            <td>{{ center.centerName }}</td>
+            <td>{{ center.contactPerson }}</td>
+            <td>{{ center.email }}</td>
+            <td>{{ center.phone }}</td>
+            @if(!center.isApproved) {
+              <td><button class="btn primary" (click)="approveGymCenter(center.centerId)">Approve</button></td>
+            }
+          </tr>
+          <tr class="empty" *ngIf="pendingCenters.length === 0">
+            <td colspan="6">No centers yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    }
+  </div>
+</div>

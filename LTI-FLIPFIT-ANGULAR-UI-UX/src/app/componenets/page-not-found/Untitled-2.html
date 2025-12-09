@@ -1,0 +1,52 @@
+<div>
+    <header class="app-header">
+        <button class="sidebar-toggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="sidebar">
+            ☰ Menu
+        </button>
+        <div class="app-title">Dashboard</div>
+    </header>
+
+    <!-- Overlay scrim for mobile when sidebar is open -->
+    <div class="scrim" hidden></div>
+
+    <div class="layout">
+        <!-- Sidebar / Nav -->
+        <aside id="sidebar" class="sidebar" aria-label="Primary sidebar">
+            <nav class="menu">
+                <!-- Centers section -->
+                <div class="menu-section">
+                    <button class="menu-button" aria-expanded="true" aria-controls="submenu-centers">
+                        <span>Centers</span>
+                        <span aria-hidden="true">▾</span>
+                    </button>
+                    <div id="submenu-centers" class="submenu show" role="group" aria-label="Centers subitems">
+                        <button data-section="centers" data-sub="pending" class="active"
+                            aria-current="page">Pending</button>
+                        <button data-section="centers" data-sub="approved">Approved</button>
+                        <button data-section="centers" data-sub="rejected">Rejected</button>
+                    </div>
+                </div>
+
+                <!-- Owners section -->
+                <div class="menu-section">
+                    <button class="menu-button" aria-expanded="false" aria-controls="submenu-owners">
+                        <span>Owners</span>
+                        <span aria-hidden="true">▸</span>
+                    </button>
+                    <div id="submenu-owners" class="submenu" role="group" aria-label="Owners subitems">
+                        <button data-section="owners" data-sub="pending">Pending</button>
+                        <button data-section="owners" data-sub="approved">Approved</button>
+                        <button data-section="owners" data-sub="rejected">Rejected</button>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main content area -->
+        <main id="main" class="content" tabindex="-1" aria-label="Main content">
+            <h1>Welcome</h1>
+            <p>Select a menu item to update the content area. This is a placeholder.</p>
+            <div id="status"></div>
+        </main>
+    </div>
+</div>

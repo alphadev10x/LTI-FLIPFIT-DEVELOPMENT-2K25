@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FlipFit - Home</title>
+<style>
+body { margin:0; font-family:Arial, sans-serif; }
+header { background:#fff; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #ddd; }
+header nav a { margin:0 10px; text-decoration:none; color:#333; font-weight:bold; }
+.hero { background: url(/assets/gym.jpg) top center/cover no-repeat; color:#fff; text-align:center; padding:180px 20px; }
+.hero h1 { font-size:36px; margin-bottom:10px; }
+.features { display:flex; justify-content:center; gap:20px; padding:40px; background:#f9f9f9; }
+.feature { text-align:center; width:200px; background-color: #0888; border-radius: 1em;}
+.popular { padding:40px; }
+.popular h2 { text-align:center; margin-bottom:20px; }
+.cards { display:flex; justify-content:center; gap:20px; }
+.card { background:#0888; padding:15px; border-radius:8px; box-shadow:0 0 5px rgba(0,0,0,0.1); width:200px; text-align:center; }
+</style>
+</head>
+<body>
+<header>
+    <div><strong>FlipFit</strong></div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    </nav>
+</header>
+<section class="hero">
+    <h1>Your Fitness, Your Terms.</h1>
+    <p>Flexible bookings, top-tier gyms, zero commitment.</p>
+</section>
+<section class="features">
+    <div class="feature"><h3>Flexible Booking</h3><p>Book anytime</p></div>
+    <div class="feature"><h3>Top-Tier Gyms</h3><p>Best facilities</p></div>
+    <div class="feature"><h3>Zero Commitment</h3><p>No contracts</p></div>
+</section>
+<section class="popular">
+    <h2>Popular Classes Near You</h2>
+    <div class="cards">
+        <div class="card">Zumba</div>
+        <div class="card">Yoga</div>
+        <div class="card">Spin Cycle</div>
+    </div>
+</section>
+</body>
+</html>

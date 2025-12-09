@@ -1,0 +1,200 @@
+<header class="navbar">
+  <div class="brand">Owner Dashboard</div>
+  <nav class="nav-links">
+    <button class="sidebar-btns" (click)="setView('centers')" [class.active]="activeView === 'centers'">
+      <i class="fa-solid fa-calendar-check"></i> Centers
+    </button>
+
+    <button class="sidebar-btns" (click)="setView('add-center')" [class.active]="activeView === 'add-center'">
+      <i class="fa-solid fa-bell"></i> AddCenter
+    </button>
+
+    <button class="sidebar-btns" (click)="setView('add-slot')" [class.active]="activeView === 'add-slot'">
+      <i class="fa-solid fa-clock"></i> AddSlot
+    </button>
+    <button class="sidebar-btns" routerLink="/login">
+      <i class="fa-solid fa-clock"></i> Logout
+    </button>
+  </nav>
+</header>
+<div class="container">
+  <div class="main-content">
+    @if (activeView === 'centers') {
+    <div class="card" style="margin-top:16px">
+      <h2>List of Centers</h2>
+      <table id="center-table" aria-label="Centers table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Center Name</th>
+            <th>Phone Number</th>
+            <th>Contact Person</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Description</th>
+            <!-- <th class="ta-right">Actions</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let center of centers">
+            <td>{{ center.centerId }}</td>
+            <td>{{ center.centerName }}</td>
+            <td>{{ center.phone }}</td>
+            <td>{{ center.contactPerson }}</td>
+            <td>{{ center.email }}</td>
+            @if (center.isApproved) {
+              <td>Approved</td>
+            } @else {
+              <td>Pending</td>
+            }
+            <td>{{ center.description }}</td>
+          </tr>
+          <!-- Show "No bookings yet" only if the bookings array is empty -->
+          <tr class="empty" *ngIf="centers.length === 0">
+            <td colspan="6">No centers yet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    } @else if (activeView === 'add-center') {
+    <h1>Add Center</h1>
+
+    <!-- Center Details -->
+    <h2>Center Details</h2>
+    <form id="centerForm" novalidate #addcenterform="ngForm">
+      <div class="grid cols-2">
+        <div>
+          <label for="centerName">Center Name *</label>
+          <input id="centerName" name="centerName" type="text" required maxlength="120"
+            placeholder="e.g., Sunrise Fitness Center" [(ngModel)]="newCenter.centerName" />
+          <div class="hint">Provide a clear name for the center.</div>
+          <div class="error" data-error-for="centerName"></div>
+        </div>
+
+        <div>
+          <label for="contactName">Contact Person *</label>
+          <input id="contactName" name="contactName" type="text"  [(ngModel)]="newCenter.contactPerson" required 
+          placeholder="e.g., Rohan Sharma" />
+          <div class="error" data-error-for="contactName"></div>
+        </div>
+
+        <div>
+          <label for="phone">Phone *</label>
+          <input id="phone" name="phone" type="tel" required pattern="[0-9+\-\s]{7,16}" placeholder="+91 98765 43210" [(ngModel)]="newCenter.phone" />
+          <div class="hint">Digits, +, -, spaces allowed.</div>
+          <div class="error" data-error-for="phone"></div>
+        </div>
+
+        <div>
+          <label for="email">Email *</label>
+          <input id="email" name="email" type="email" required placeholder="contact@example.com" [(ngModel)]="newCenter.email" />
+          <div class="error" data-error-for="email"></div>
+        </div>
+
+        <div class="full">
+          <label for="description">Description</label>
+          <textarea id="description" name="description"
+            placeholder="Short description of the center, amenities, etc." [(ngModel)]="newCenter.description"></textarea>
+        </div>
+      </div>
+
+      <!-- Address -->
+      <h2>Address</h2>
+      <div class="grid cols-2">
+        <div>
+          <label for="addr1">Address Line 1 *</label>
+          <input id="addr1" name="addr1" type="text"  [(ngModel)]="centerAddress.address1" required 
+          placeholder="Building / Street" />
+          <div class="error" data-error-for="addr1"></div>
+        </div>
+        <div>
+          <label for="addr2">Address Line 2</label>
+          <input id="addr2" name="addr2" type="text" placeholder="Area / Landmark" [(ngModel)]="centerAddress.address2" />
+        </div>
+        <div>
+          <label for="city">City *</label>
+          <input id="city" name="city" type="text" [(ngModel)]="centerAddress.city"
+          required placeholder="City" />
+          <div class="error" data-error-for="city"></div>
+        </div>
+        <div>
+          <label for="state">State *</label>
+          <input id="state" name="state" type="text" [(ngModel)]="centerAddress.state"
+          required placeholder="State" />
+          <div class="error" data-error-for="state"></div>
+        </div>
+        <div>
+          <label for="pincode">Pincode *</label>
+          <input id="pincode" name="pincode" type="text" [(ngModel)]="centerAddress.pincode"
+          required pattern="[0-9]{5,12}" placeholder="e.g., 400076" />
+          <div class="error" data-error-for="pincode"></div>
+        </div>
+        <div>
+          <label for="country">Country *</label>
+          <input id="country" name="country" type="text" [(ngModel)]="centerAddress.country" required value="India" />
+          <div class="error" data-error-for="country"></div>
+        </div>
+
+        <!-- Submit -->
+        <div class="footer">
+          <button type="reset" class="btn ghost">Reset</button>
+          <button type="submit" class="btn primary" (click)="addCenter()">Save Center</button>
+        </div>
+      </div>
+    </form>
+    } @else if (activeView === 'add-slot') {
+    <!-- Slots -->
+    <div class="card">
+      <form id="centerForm" novalidate #addslotform="ngForm">
+        <h2>Slots</h2>
+        
+        <div class="grid cols-2">
+        <div>
+          <label for="addr1">Slot Name *</label>
+          <input id="addr1" name="addr1" type="text"  [(ngModel)]="newSlot.slotName" 
+          required placeholder="Slot Name" />
+          <div class="error" data-error-for="addr1"></div>
+        </div>
+        <div>
+          <label for="pincode">Center ID *</label>
+          <select name="center-id" [(ngModel)]="selectedCenterId" [(ngModel)]="newSlot.centerId">
+            <option *ngFor="let center of centers" [value]="center.centerId">
+              {{ center.centerId }} - {{ center.centerName }}
+            </option>
+          </select>
+          <div class="error" data-error-for="pincode"></div>
+        </div>
+        <div>
+          <label for="addr2">Start Time</label>
+          <input id="addr2" name="addr2" type="time" [(ngModel)]="newSlot.startTime"
+          required placeholder="Start Time" />
+        </div>
+        <div>
+          <label for="city">End Time *</label>
+          <input id="city" name="city" type="time" [(ngModel)]="newSlot.endTime"
+          required placeholder="End Time" />
+          <div class="error" data-error-for="city"></div>
+        </div>
+        <div>
+          <label for="state">Capacity *</label>
+          <input id="state" name="state" type="text" [(ngModel)]="newSlot.capacity"
+          required placeholder="Capacity" />
+          <div class="error" data-error-for="state"></div>
+        </div>
+      </div>
+
+        <div class="bar">
+          <span class="hint">Tip: Keep slot duration consistent (e.g., 120 minutes).</span>
+          <button type="button" class="btn primary" (click)="addSlot()" id="addSlotBtn">Add Slot</button>
+        </div>
+
+        <!-- Preview -->
+        <div id="preview" style="display:none; margin-top:16px">
+          <h2>Submission Preview</h2>
+          <pre id="previewJson"></pre>
+        </div>
+      </form>
+    </div>
+    }
+  </div>
+</div>

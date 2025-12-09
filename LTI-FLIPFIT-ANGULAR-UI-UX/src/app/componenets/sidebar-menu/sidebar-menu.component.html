@@ -1,0 +1,30 @@
+
+<nav class="menu">
+  <!-- Section -->
+  <div class="menu-section" *ngFor="let section of sections">
+    <button class="menu-button"
+            [attr.aria-expanded]="section.expanded"
+            [attr.aria-controls]="'submenu-' + section.id"
+            (click)="toggleSection(section)"
+            (keydown)="onSectionKeydown($event, section)">
+      <span>{{ section.label }}</span>
+      <span aria-hidden="true">{{ section.expanded ? '▾' : '▸' }}</span>
+    </button>
+
+    <div [id]="'submenu-' + section.id"
+         class="submenu"
+         [class.show]="section.expanded"
+         role="group"
+         [attr.aria-label]="section.label + ' subitems'">
+      <button *ngFor="let item of section.items; let i = index"
+              [attr.data-section]="item.section"
+              [attr.data-sub]="item.sub"
+              [class.active]="isActive(item)"
+              [attr.aria-current]="isActive(item) ? 'page' : null"
+              (click)="selectItem(item)"
+              (keydown)="onItemKeydown($event, section, i)">
+        {{ item.label }}
+      </button>
+    </div>
+  </div>
+</nav>
