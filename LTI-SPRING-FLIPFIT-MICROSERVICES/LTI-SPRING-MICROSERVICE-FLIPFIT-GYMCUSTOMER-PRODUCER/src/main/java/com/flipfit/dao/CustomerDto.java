@@ -1,0 +1,135 @@
+package com.flipfit.dao;
+
+import java.time.LocalDateTime;
+
+import com.flipfit.entity.CardDetails;
+
+import jakarta.validation.constraints.NotEmpty;
+
+public class CustomerDto {
+
+	@NotEmpty(message = "Email cannot be empty")
+	private String email;
+	@NotEmpty(message = "Password cannot be empty")
+	private String password;
+	private Long roleId;
+	@NotEmpty(message = "First Name cannot be empty")
+	private String firstName;
+	@NotEmpty(message = "Last Name cannot be empty")
+	private String lastName;
+	@NotEmpty(message = "Phone Number cannot be empty")
+	private String phoneNumber;
+	@NotEmpty(message = "Gender cannot be empty")
+	private String gender;
+	//private CardDetails cardDetails;
+	
+	
+	
+	
+	
+	/**
+	 * @return the email
+	 */
+	public String getEmail() {
+		return email;
+	}
+	/**
+	 * @param email the email to set
+	 */
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	/**
+	 * @return the password
+	 */
+	public String getPassword() {
+		return password;
+	}
+	/**
+	 * @param password the password to set
+	 */
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	
+	/**
+	 * @return the roleId
+	 */
+	public Long getRoleId() {
+		return roleId;
+	}
+	/**
+	 * @param roleId the roleId to set
+	 */
+	public void setRoleId(Long roleId) {
+		this.roleId = roleId;
+	}
+	/**
+	 * @return the firstName
+	 */
+	public String getFirstName() {
+		return firstName;
+	}
+	/**
+	 * @param firstName the firstName to set
+	 */
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	/**
+	 * @return the lastName
+	 */
+	public String getLastName() {
+		return lastName;
+	}
+	/**
+	 * @param lastName the lastName to set
+	 */
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	/**
+	 * @return the phoneNumber
+	 */
+	public String getPhoneNumber() {
+		return phoneNumber;
+	}
+	/**
+	 * @param phoneNumber the phoneNumber to set
+	 */
+	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+	
+	public String getGender() {
+		return gender;
+	}
+	/**
+	 * @param gender the gender to set
+	 */
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+	
+	
+	public CustomerDto() {
+		super();
+	}
+	public CustomerDto( String email, String password, Long roleId, String firstName, String lastName,
+			String phoneNumber, String gender) {
+		super();
+	
+		this.email = email;
+		this.password = password;
+		this.roleId = roleId;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.phoneNumber = phoneNumber;
+		this.gender = gender;
+		
+	}
+	
+	
+	
+
+}
